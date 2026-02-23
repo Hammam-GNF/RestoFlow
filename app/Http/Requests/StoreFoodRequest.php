@@ -11,7 +11,9 @@ class StoreFoodRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return $this->user->role === 'pelayan';
+        $user = $this->user();
+
+        return $user && $user->role === 'pelayan';
     }
 
     /**
