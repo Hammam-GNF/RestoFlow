@@ -24,13 +24,20 @@ class AuthController extends Controller
     /** @var \App\Models\User $user */
     $user = Auth::user();
 
+    $user->tokens()->delete();
+
     $token = $user->createToken('auth_token')->plainTextToken;
 
     return response()->json([
         'access_token' => $token,
         'token_type' => 'Bearer',
-        'user' => $user,
-    ]);
+        'user' => [
+            'id' => $user->id,
+            'name' => $user->name,
+            'email' => $user->email,
+            'role' => $user->role,
+        ],
+    ], 200);
 }
 
     public function logout(Request $request)
