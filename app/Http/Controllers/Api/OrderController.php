@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddOrderItemRequest;
 use App\Http\Requests\OpenOrderRequest;
+use App\Http\Resources\OrderResource;
 use App\Services\OrderItemService;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
@@ -32,9 +33,8 @@ class OrderController extends Controller
             $request->quantity
         );
 
-        return response()->json([
-            'message' => 'Item added successfully',
-            'total_price' => $order->total_price
-        ], 200);
+        $order->load(['orderItems.food', 'table']);
+
+        return new OrderResource($order);
     }
 }
