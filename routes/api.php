@@ -11,17 +11,21 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+});
 
-    Route::apiResource('foods', FoodController::class);
+Route::middleware(['auth:sanctum', 'role:kasir'])->group(function () {
+    Route::post('/foods', [FoodController::class, 'store']);
+    Route::put('/foods/{food}', [FoodController::class, 'update']);
+    Route::delete('/foods/{food}', [FoodController::class, 'destroy']);
     
-    Route::post('/orders', [OrderController::class, 'store'])
-        ->middleware('role:pelayan');
+    Route::patch('/orders/{order}/close', [OrderController::class, 'close']);
+});
 
-    Route::post('/orders/{order}/items', [OrderController::class, 'addItem'])
-        ->middleware('role:pelayan');
-
-    Route::patch('/orders/{order}/close', [OrderController::class, 'close'])
-        ->middleware('role:kasir');
-    });
+Route::middleware('auth:sanctum', 'role:pelayan')->group(function () {
+    Route::post('/orders', [OrderController::class, 'store']);
+    Route::post('/orders/{order}/items', [OrderController::class, 'addItem']);
+});
     
 Route::get('/tables', [TableController::class, 'index']);
+Route::get('/foods', [FoodController::class, 'index']);
+Route::get('/foods/{food}', [FoodController::class, 'show']);
