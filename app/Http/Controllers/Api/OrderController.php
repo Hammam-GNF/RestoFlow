@@ -7,12 +7,36 @@ use App\Http\Requests\AddOrderItemRequest;
 use App\Http\Requests\CloseOrderRequest;
 use App\Http\Requests\OpenOrderRequest;
 use App\Http\Resources\OrderResource;
+use App\Models\Order;
 use App\Services\OrderItemService;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
+    public function index(Request $request)
+    {
+        $query = Order::with(['table']);
+
+        if ($request->has('status')) {
+            $query->where('status', $request->status);
+        }
+
+        $orders = $query->latest()->get();
+
+        return OrderResource::collection($orders);
+    }
+
+    public function show($id)
+    {
+        $order = Order::with([
+            'table',
+            'orderItems.food'
+        ])->findOrFail($id);
+
+        return new OrderResource($order);
+    }
+
     public function store(OpenOrderRequest $request, OrderService $orderService)
     {
         $order = $orderService->openOrder(

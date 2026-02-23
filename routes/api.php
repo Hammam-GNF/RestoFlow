@@ -11,6 +11,8 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/me', [AuthController::class, 'me']);
+
+    Route::get('/orders/{order}', [OrderController::class, 'show'])->middleware('role:kasir,pelayan');
 });
 
 Route::middleware(['auth:sanctum', 'role:kasir'])->group(function () {
@@ -18,6 +20,7 @@ Route::middleware(['auth:sanctum', 'role:kasir'])->group(function () {
     Route::put('/foods/{food}', [FoodController::class, 'update']);
     Route::delete('/foods/{food}', [FoodController::class, 'destroy']);
     
+    Route::get('/orders', [OrderController::class, 'index']);
     Route::patch('/orders/{order}/close', [OrderController::class, 'close']);
 });
 
