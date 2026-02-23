@@ -11,7 +11,7 @@ class TableController extends Controller
 {
     public function index()
     {
-        $tables = Table::orderBy('number')->get();
+        $tables = Table::orderBy('number')->paginate(10);
 
         return TableResource::collection($tables);
     }

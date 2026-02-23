@@ -13,7 +13,7 @@ class FoodController extends Controller
 {
     public function index()
     {
-        $foods = Food::latest()->get();
+        $foods = Food::latest()->paginate(10);
 
         return FoodResource::collection($foods);
     }
