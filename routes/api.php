@@ -13,9 +13,15 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/me', [AuthController::class, 'me']);
 
     Route::apiResource('foods', FoodController::class);
-    Route::post('/orders', [OrderController::class, 'store']);
-    Route::post('/orders/{order}/items', [OrderController::class, 'addItem']);
-    Route::patch('/orders/{order}/close', [OrderController::class, 'close']);
+    
+    Route::post('/orders', [OrderController::class, 'store'])
+        ->middleware('role:pelayan');
+
+    Route::post('/orders/{order}/items', [OrderController::class, 'addItem'])
+        ->middleware('role:pelayan');
+
+    Route::patch('/orders/{order}/close', [OrderController::class, 'close'])
+        ->middleware('role:kasir');
     });
     
 Route::get('/tables', [TableController::class, 'index']);
