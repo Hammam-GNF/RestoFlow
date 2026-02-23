@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AddOrderItemRequest;
+use App\Http\Requests\CloseOrderRequest;
 use App\Http\Requests\OpenOrderRequest;
 use App\Http\Resources\OrderResource;
 use App\Services\OrderItemService;
@@ -31,6 +32,18 @@ class OrderController extends Controller
             $orderId,
             $request->food_id,
             $request->quantity
+        );
+
+        $order->load(['orderItems.food', 'table']);
+
+        return new OrderResource($order);
+    }
+
+    public function close($orderId, CloseOrderRequest $request, OrderService $service)
+    {
+        $order = $service->closeOrder(
+            $orderId,
+            $request->user()->id
         );
 
         $order->load(['orderItems.food', 'table']);
