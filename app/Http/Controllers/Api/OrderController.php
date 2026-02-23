@@ -10,13 +10,14 @@ use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\OrderItemService;
 use App\Services\OrderService;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Order::with(['table']);
+        $query = Order::with(['table', 'orderItems']);
 
         if ($request->has('status')) {
             $query->where('status', $request->status);
@@ -73,5 +74,21 @@ class OrderController extends Controller
         $order->load(['orderItems.food', 'table']);
 
         return new OrderResource($order);
+    }
+
+    public function receipt($id)
+    {
+        $order = Order::with([
+            'table',
+            'orderItems.food'
+        ])->findOrFail($id);
+
+        if ($order->status !== 'closed') {
+            abort(400, 'Order must be closed before generating receipt');
+        }
+        
+        $pdf = Pdf::loadView('receipt', compact('order'));
+
+        return $pdf->download("receipt-order-{$order->id}.pdf");
     }
 }
