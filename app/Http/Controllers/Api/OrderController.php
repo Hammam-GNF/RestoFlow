@@ -23,7 +23,7 @@ class OrderController extends Controller
             $query->where('status', $request->status);
         }
 
-        $orders = $query->latest()->get();
+        $orders = $query->latest()->paginate(10);
 
         return OrderResource::collection($orders);
     }
