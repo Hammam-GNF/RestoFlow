@@ -22,6 +22,7 @@ Route::middleware(['auth:sanctum', 'role:kasir'])->group(function () {
     
     Route::get('/orders', [OrderController::class, 'index']);
     Route::patch('/orders/{order}/close', [OrderController::class, 'close']);
+    Route::get('/orders/{order}/receipt', [OrderController::class, 'receipt']);
 });
 
 Route::middleware('auth:sanctum', 'role:pelayan')->group(function () {
