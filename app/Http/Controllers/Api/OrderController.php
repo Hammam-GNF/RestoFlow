@@ -1,0 +1,24 @@
+<?php
+
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Http\Requests\OpenOrderRequest;
+use App\Services\OrderService;
+use Illuminate\Http\Request;
+
+class OrderController extends Controller
+{
+    public function store(OpenOrderRequest $request, OrderService $orderService)
+    {
+        $order = $orderService->openOrder(
+            $request->table_id,
+            $request->user()->id
+        );
+
+        return response()->json([
+            'message' => 'Order opened successfully',
+            'order_id' => $order->id
+        ], 201);
+    }
+}
