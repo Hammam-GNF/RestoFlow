@@ -45,4 +45,14 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
+    public function openedOrders()
+    {
+        return $this->hasMany(Order::class, 'opened_by');
+    }
+
+    public function closedOrders()
+    {
+        return $this->hasMany(Order::class, 'closed_by');
+    }
 }
