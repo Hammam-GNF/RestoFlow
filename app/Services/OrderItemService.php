@@ -37,4 +37,56 @@ class OrderItemService
             return $order;
         });
     }
+
+    public function updateItem(int $orderId, int $itemId, int $quantity)
+    {
+        return DB::transaction(function () use ($orderId, $itemId, $quantity) {
+
+            $order = Order::lockForUpdate()
+                ->with('orderItems')
+                ->findOrFail($orderId);
+
+            if ($order->status !== 'open') {
+                abort(400, 'Order is not open');
+            }
+
+            $item = $order->orderItems()
+                ->where('id', $itemId)
+                ->firstOrFail();
+
+            $item->quantity = $quantity;
+            $item->subtotal = $item->price * $quantity;
+            $item->save();
+
+            $order->total_price = $order->orderItems()->sum('subtotal');
+            $order->save();
+
+            return $order;
+        });
+    }
+
+    public function deleteItem(int $orderId, int $itemId)
+    {
+        return DB::transaction(function () use ($orderId, $itemId) {
+
+            $order = Order::lockForUpdate()
+                ->with('orderItems')
+                ->findOrFail($orderId);
+
+            if ($order->status !== 'open') {
+                abort(400, 'Order is not open');
+            }
+
+            $item = $order->orderItems()
+                ->where('id', $itemId)
+                ->firstOrFail();
+
+            $item->delete();
+
+            $order->total_price = $order->orderItems()->sum('subtotal');
+            $order->save();
+
+            return $order;
+        });
+    }
 }
