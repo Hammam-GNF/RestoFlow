@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\AddOrderItemRequest;
 use App\Http\Requests\CloseOrderRequest;
 use App\Http\Requests\OpenOrderRequest;
+use App\Http\Requests\UpdateOrderItemRequest;
 use App\Http\Resources\OrderResource;
 use App\Models\Order;
 use App\Services\OrderItemService;
@@ -58,6 +59,28 @@ class OrderController extends Controller
             $request->food_id,
             $request->quantity
         );
+
+        $order->load(['orderItems.food', 'table']);
+
+        return new OrderResource($order);
+    }
+
+    public function updateItem($orderId, $itemId, UpdateOrderItemRequest $request, OrderItemService $service)
+    {
+        $order = $service->updateItem(
+            $orderId,
+            $itemId,
+            $request->quantity
+        );
+
+        $order->load(['orderItems.food', 'table']);
+
+        return new OrderResource($order);
+    }
+
+    public function deleteItem($orderId, $itemId, OrderItemService $service)
+    {
+        $order = $service->deleteItem($orderId, $itemId);
 
         $order->load(['orderItems.food', 'table']);
 
