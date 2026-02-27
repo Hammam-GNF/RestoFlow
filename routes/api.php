@@ -28,6 +28,8 @@ Route::middleware(['auth:sanctum', 'role:kasir'])->group(function () {
 Route::middleware('auth:sanctum', 'role:pelayan')->group(function () {
     Route::post('/orders', [OrderController::class, 'store']);
     Route::post('/orders/{order}/items', [OrderController::class, 'addItem']);
+    Route::put('/orders/{order}/items/{item}', [OrderController::class, 'updateItem']);
+    Route::delete('/orders/{order}/items/{item}', [OrderController::class, 'deleteItem']);
 });
     
 Route::get('/tables', [TableController::class, 'index']);
