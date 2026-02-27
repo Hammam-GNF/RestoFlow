@@ -35,7 +35,7 @@
         <tr>
             <td>{{ $item->food->name }}</td>
             <td>{{ $item->quantity }}</td>
-            <td>{{ number_format($item->price, 0) }}</td>
+            <td>Rp.{{ number_format($item->price, 0) }}</td>
             <td class="text-right">{{ number_format($item->subtotal, 0) }}</td>
         </tr>
         @endforeach
@@ -43,7 +43,7 @@
 </table>
 
 <h3 class="text-right">
-    Total: {{ number_format($order->total_price, 0) }}
+    Total: Rp.{{ number_format($order->total_price, 0) }}
 </h3>
 
 </body>
