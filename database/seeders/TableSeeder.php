@@ -13,7 +13,7 @@ class TableSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($i = 1; $i <= 10; $i++) {
+        for ($i = 1; $i <= 25; $i++) {
             Table::create([
                 'number' => $i,
                 'status' => 'available',
