@@ -21,12 +21,40 @@ class OrderService
             $order = Order::create([
                 'table_id' => $table->id,
                 'opened_by' => $userId,
-                'status' => 'open',
+                'status' => 'draft',
                 'opened_at' => now(),
                 'total_price' => 0,
             ]);
 
-            $table->update([
+            return $order;
+        });
+    }
+
+    public function submitOrder(int $orderId)
+    {
+        return DB::transaction(function () use ($orderId) {
+
+            $order = Order::lockForUpdate()
+                ->with('table', 'orderItems')
+                ->findOrFail($orderId);
+
+            if ($order->status !== 'draft') {
+                abort(400, 'Order cannot be submitted');
+            }
+
+            if ($order->orderItems()->count() === 0) {
+                abort(400, 'Cannot submit empty order');
+            }
+
+            if ($order->table->status !== 'available') {
+                abort(400, 'Table is not available');
+            }
+
+            $order->update([
+                'status' => 'submitted'
+            ]);
+
+            $order->table->update([
                 'status' => 'occupied'
             ]);
 
@@ -42,8 +70,8 @@ class OrderService
                 ->with('table')
                 ->findOrFail($orderId);
 
-            if ($order->status !== 'open') {
-                abort(400, 'Order already closed');
+            if ($order->status !== 'submitted') {
+                abort(400, 'Only submitted orders can be closed');
             }
 
             $order->update([
