@@ -65,6 +65,12 @@ class OrderController extends Controller
         return new OrderResource($order);
     }
 
+    public function submit($orderId, OrderService $service)
+    {
+        $order = $service->submitOrder($orderId);
+        return new OrderResource($order);
+    }
+
     public function updateItem($orderId, $itemId, UpdateOrderItemRequest $request, OrderItemService $service)
     {
         $order = $service->updateItem(
