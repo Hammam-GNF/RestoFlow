@@ -4,7 +4,6 @@ namespace App\Services;
 
 use App\Models\Order;
 use App\Models\Food;
-use App\Models\OrderItem;
 use Illuminate\Support\Facades\DB;
 
 class OrderItemService
@@ -15,23 +14,28 @@ class OrderItemService
 
             $order = Order::lockForUpdate()->findOrFail($orderId);
 
-            if ($order->status !== 'open') {
-                abort(400, 'Order is not open');
+            if ($order->status !== 'draft') {
+                abort(400, 'Order cannot be modified');
             }
 
             $food = Food::findOrFail($foodId);
 
-            $subtotal = $food->price * $quantity;
+            $existingItem = $order->orderItems()->where('food_id', $foodId)->first();
 
-            OrderItem::create([
-                'order_id' => $order->id,
-                'food_id' => $food->id,
-                'quantity' => $quantity,
-                'price' => $food->price,
-                'subtotal' => $subtotal,
-            ]);
+            if ($existingItem) {
+                $existingItem->quantity += $quantity;
+                $existingItem->subtotal = $existingItem->price * $existingItem->quantity;
+                $existingItem->save();
+            } else {
+                $order->orderItems()->create([
+                    'food_id' => $food->id,
+                    'quantity' => $quantity,
+                    'price' => $food->price,
+                    'subtotal' => $food->price * $quantity,
+                ]);
+            }
 
-            $order->total_price += $subtotal;
+            $order->total_price = $order->orderItems()->sum('subtotal');
             $order->save();
 
             return $order;
@@ -46,8 +50,8 @@ class OrderItemService
                 ->with('orderItems')
                 ->findOrFail($orderId);
 
-            if ($order->status !== 'open') {
-                abort(400, 'Order is not open');
+            if ($order->status !== 'draft') {
+                abort(400, 'Order cannot be modified');
             }
 
             $item = $order->orderItems()
@@ -73,8 +77,8 @@ class OrderItemService
                 ->with('orderItems')
                 ->findOrFail($orderId);
 
-            if ($order->status !== 'open') {
-                abort(400, 'Order is not open');
+            if ($order->status !== 'draft') {
+                abort(400, 'Order cannot be modified');
             }
 
             $item = $order->orderItems()
